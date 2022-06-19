@@ -83,7 +83,34 @@ for i in range(1, measures + 1):
     for j in range(len(right_hand_notes[i-1])):
         dif = xpoints_variation_rh_divison[i-1][j] / xpoints_ref_rh_divison[i-1][j]
         dif_pitch = right_hand_notes[i-1][j] * dif
-        print(dif_pitch)
+        #print(dif_pitch)
         right_hand.measure(i).notes[j].pitch.frequency = dif_pitch 
 
-right_hand.show("musicxml")
+# get reference trajectory x values via Lorenz
+xpoints_reference_lh, _, _ = Lorenz(start = 0, end= 30, step_count = number_of_notes_lh, initial = np.array([1.0,1.0,1.0]))
+xpoints_ref_lh_divison = []
+for i in range(len(left_hand_notes)):
+    current_measure = []
+    for j in range(len(left_hand_notes[i])):
+        current_measure.append(xpoints_reference_lh[i])
+    xpoints_ref_lh_divison.append(current_measure)
+
+# get variation trajectory x values via Lorenz
+xpoints_variation_lh, _, _ = Lorenz(start = 0, end= 30, step_count = number_of_notes_lh, initial = np.array([0.8,1.0,1.0]))
+xpoints_variation_lh_divison = []
+for i in range(len(left_hand_notes)):
+    current_measure = []
+    for j in range(len(left_hand_notes[i])):
+        current_measure.append(xpoints_variation_lh[i])
+    xpoints_variation_lh_divison.append(current_measure)
+    
+for i in range(1, measures + 1):
+    for j in range(len(left_hand_notes[i-1])):
+        dif = xpoints_variation_lh_divison[i-1][j] / xpoints_ref_lh_divison[i-1][j]
+        dif_pitch = left_hand_notes[i-1][j] * dif
+        #print(dif_pitch)
+        left_hand.measure(i).notes[j].pitch.frequency = dif_pitch 
+
+right_hand.show("midi")
+left_hand.show("midi")
+bach.show("musicxml")
