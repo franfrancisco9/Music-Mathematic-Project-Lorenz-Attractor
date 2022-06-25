@@ -253,3 +253,73 @@ bach.write('midi', fp='../data/var/bach_var_10.mid')
 bach.write('musicxml', fp='../data/var/bach_var_10.mxl')
 
 #bach.show("musicxml")
+
+# Check for equal notes in different initial conditions
+conds = []
+right_hand_notes_var_equal = []
+left_hand_notes_var_equal = []
+for initial_cond in [-5.005 + 0.005 * i for i in range(2002)]:
+    conds.append(initial_cond)
+    # Right Hand Code
+    # get variation trajectory x values via Lorenz
+    xpoints_variation_rh, _, _ = Lorenz(start = 0, end= 30, step_count = number_of_notes_rh, initial = np.array([initial_cond, 1.0, 1.0]))
+    xpoints_variation_rh_divison = []
+    for i in range(len(right_hand_notes)):
+        current_measure = []
+        for j in range(len(right_hand_notes[i])):
+            current_measure.append(xpoints_variation_rh[i])
+        xpoints_variation_rh_divison.append(current_measure)
+    
+    right_hand_notes_equal = 0
+    for i in range(1, measures + 1):
+        current_notes = []
+        for j in range(len(right_hand_notes[i-1])):
+            dif = xpoints_variation_rh_divison[i-1][j] / xpoints_ref_rh_divison[i-1][j]
+            dif_pitch = right_hand_notes[i-1][j] * dif
+            if abs(abs(dif_pitch) - right_hand_notes[i-1][j]) < 10:
+                right_hand_notes_equal += 1
+    right_hand_notes_var_equal.append(right_hand_notes_equal)
+
+
+    # Left Hand Code
+    # get variation trajectory x values via Lorenz
+    xpoints_variation_lh, _, _ = Lorenz(start = 0, end= 30, step_count = number_of_notes_lh, initial = np.array([initial_cond,1.0,1.0]))
+    xpoints_variation_lh_divison = []
+    for i in range(len(left_hand_notes)):
+        current_measure = []
+        for j in range(len(left_hand_notes[i])):
+            current_measure.append(xpoints_variation_lh[i])
+        xpoints_variation_lh_divison.append(current_measure)
+
+    left_hand_notes_equal = 0
+    for i in range(1, measures + 1):
+        current_notes = []
+        for j in range(len(left_hand_notes[i-1])):
+            dif = xpoints_variation_lh_divison[i-1][j] / xpoints_ref_lh_divison[i-1][j]
+            dif_pitch = left_hand_notes[i-1][j] * dif
+            if abs(dif_pitch - left_hand_notes[i-1][j]) < 10:
+                left_hand_notes_equal += 1
+    left_hand_notes_var_equal.append(left_hand_notes_equal)
+    
+
+newfig = plt.figure()
+plt.plot(conds, [i/number_of_notes_rh * 100 for i in right_hand_notes_var_equal],'b', label= "Número de notas iguais [%]")
+#plt.plot(conds, right_hand_notes_var_equal, 'r', label = "Número de notas iguais na mão direita")
+plt.title("Variação do número de notas iguais  - mão direita")
+plt.ylabel("Número de notas iguais [%]")
+plt.xlabel("Condição inicial de x")
+plt.autoscale
+plt.grid()
+#plt.show()
+plt.savefig("../images/condicao_inicial_rh.png")
+
+newfig = plt.figure()
+plt.plot(conds, [i/ number_of_notes_lh * 100 for i in left_hand_notes_var_equal],'b', label= "Número de notas iguais [%]")
+#plt.plot(conds, right_hand_notes_var_equal, 'r', label = "Número de notas iguais na mão direita")
+plt.title("Variação do número de notas iguais - mão esquerda")
+plt.ylabel("Número de notas iguais [%]")
+plt.xlabel("Condição inicial de x")
+plt.autoscale
+plt.grid()
+#plt.show()
+plt.savefig("../images/condicao_inicial_lh.png")
