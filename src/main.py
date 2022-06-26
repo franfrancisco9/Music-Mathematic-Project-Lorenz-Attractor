@@ -3,6 +3,7 @@ import copy
 import matplotlib.pyplot as plt
 import numpy as np
 from creating_lorenz import Lorenz
+from analysis import analysis
 
 bach = converter.parse('bwv860.mxl')
 bach.write('midi', fp='../data/original/bach.mid')
@@ -323,3 +324,9 @@ plt.autoscale
 plt.grid()
 #plt.show()
 plt.savefig("../images/condicao_inicial_lh.png")
+
+analysis("bwv860.mxl")
+analysis("canon.mxl")
+analysis("chopin.mxl")
+analysis("schoenberg.mxl")
+analysis("webern.mxl")
